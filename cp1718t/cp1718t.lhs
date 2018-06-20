@@ -974,36 +974,41 @@ outras funções auxiliares que sejam necessárias.
 \subsection*{Problema 1}
 
 \begin{code}
-inBlockchain = undefined
-outBlockchain = undefined
-recBlockchain = undefined    
-cataBlockchain = undefined     
-anaBlockchain = undefined
-hyloBlockchain = undefined
+inBlockchain = either Bc Bcs
+outBlockchain (Bc b) = Left b
+outBlockchain (Bcs a) = Right a
+recBlockchain f = id -|- id >< f   
+cataBlockchain g = g . recBlockchain(cataBlockchain g) . outBlockchain     
+anaBlockchain g = inBlockchain . recBlockchain(anaBlockchain g) . g 
+hyloBlockchain f g = cataBlockchain f . anaBlockchain g 
 
-allTransactions = undefined
-ledger = undefined
-isValidMagicNr = undefined
+allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id))) 
+
+ledger = cataList(either nil (cons . ((id >< sum) >< id))) . col . cataList(either nil (conc . (conc . (singl><singl) . (split (id >< negate.p1) (swap.p2))  >< id))) . allTransactions
+isValidMagicNr = uncurry (==) . split id nub . cataBlockchain(either (singl.p1) (cons. (p1 >< id))) 
 \end{code}
 
 
 \subsection*{Problema 2}
 
 \begin{code}
-inQTree = undefined
-outQTree = undefined
-baseQTree = undefined
-recQTree = undefined
-cataQTree = undefined
-anaQTree = undefined
-hyloQTree = undefined
+inQTree (Left (a,(b,c))) = Cell a b c   
+inQTree (Right (a,(b,(c,d)))) = Block a b c d  
+outQTree (Cell a b c) = Left (a,(b,c))
+outQTree (Block a b c d) = Right (a,(b,(c,d)))
+baseQTree h f = (h >< id) -|- (f >< (f >< (f >< f)))  
+recQTree f = baseQTree id f 
+cataQTree g  = g . recQTree(cataQTree g) . outQTree
+anaQTree g = inQTree . recQTree(anaQTree g) . g 
+hyloQTree f h = cataQTree f . anaQTree h
 
 instance Functor QTree where
-    fmap = undefined
+    fmap g = cataQTree (inQTree .  baseQTree g id)
 
-rotateQTree = undefined
-scaleQTree = undefined
-invertQTree = undefined
+rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (split (p2.p2.p2) (p1.p2))))))
+scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
+invertQTree = undefined {-anaQTree(((f >< id) -|- id) . outQTree) 
+                where f = ((-255)><((-255)><((-255)><(-255))))-}
 compressQTree = undefined
 outlineQTree = undefined
 \end{code}
@@ -1018,7 +1023,7 @@ loop = undefined
 \subsection*{Problema 4}
 
 \begin{code}
-inFTree = undefined
+inFTree = undefined 
 outFTree = undefined
 baseFTree = undefined
 recFTree = undefined
@@ -1029,7 +1034,7 @@ hyloFTree = undefined
 instance Bifunctor FTree where
     bimap = undefined
 
-generatePTree = undefined
+generatePTree n = undefined 
 drawPTree = undefined
 \end{code}
 
