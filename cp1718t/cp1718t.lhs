@@ -980,12 +980,18 @@ outBlockchain (Bcs a) = Right a
 recBlockchain f = id -|- id >< f   
 cataBlockchain g = g . recBlockchain(cataBlockchain g) . outBlockchain     
 anaBlockchain g = inBlockchain . recBlockchain(anaBlockchain g) . g 
-hyloBlockchain f g = cataBlockchain f . anaBlockchain g 
+hyloBlockchain g h = cataBlockchain g . anaBlockchain h 
 
 allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id))) 
 
-ledger = cataList(either nil (cons . ((id >< sum) >< id))) . col . cataList(either nil (conc . (conc . (singl><singl) . (split (id >< negate.p1) (swap.p2))  >< id))) . allTransactions
-isValidMagicNr = uncurry (==) . split id nub . cataBlockchain(either (singl.p1) (cons. (p1 >< id))) 
+ledger = m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id))) . allTransactions
+        where sp = (singl><singl)
+              l = (id >< negate.p1)
+              r = swap.p2
+              m = map(id >< sum)
+
+isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
+        where eq = uncurry (==)
 \end{code}
 
 
