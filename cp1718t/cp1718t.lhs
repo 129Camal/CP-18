@@ -1082,9 +1082,13 @@ drawPTree = undefined
 \subsection*{Problema 5}
 
 \begin{code}
-singletonbag x = B [(x,1)]
-muB = undefined --concat . map p1 
-dist = undefined
+singletonbag = B . singl . split id (const 1)
+
+muB = B . concat . map(subsilia) . unB . fmap unB
+      where subsilia (a,b) = map(id >< (*b)) a 
+
+dist = aux . split (id) (sum . map(snd)) . unB
+      where aux (a, b) = map(\(c,d) -> (a, (toFloat d / toFloat b))) a
 \end{code}
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}
