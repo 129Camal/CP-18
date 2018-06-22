@@ -982,18 +982,42 @@ cataBlockchain g = g . recBlockchain(cataBlockchain g) . outBlockchain
 anaBlockchain g = inBlockchain . recBlockchain(anaBlockchain g) . g 
 hyloBlockchain g h = cataBlockchain g . anaBlockchain h 
 
+\end{code}
+
+\subsubsection{allTransactions}
+De seguida apresenta-se a definição da função \emph{allTransactions}, esta função devolve a lista de transações existentes na \emph{BlockChain}.
+
+\begin{code}
+
 allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id))) 
 
-ledger = m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id))) . allTransactions
+\end{code}
+
+Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso receba um \emph{bc} apenas irá retirar a lista das transações presentes, caso seja uma \emph{BlockChain} do tipo \emph{bcs} apenas retiramos a lista de transações presente no \emph{Block}.
+
+\subsubsection{ledger}
+
+Com a função \emph{ledger} pretende-se obter uma lista de pares, (\emph{Entity,Value}) que represente a \emph{Entity} e o seu respetivo \emph{Value}, ou seja, o somatório de todos os valores que a entidade gastou ou obteve. É de salientar que esta função recebe uma \emph{BlockChain}.
+
+\begin{code}
+ledger= m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id))) . allTransactions
         where sp = (singl><singl)
               l = (id >< negate.p1)
               r = swap.p2
               m = map(id >< sum)
 
-isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
-        where eq = uncurry (==)
 \end{code}
 
+Para resolver esta função, utilizamos em primeira instância a função anteriormente desenvolvida, \emph{allTransactions}. Com a lista de transações obtida, aplicamos um \emph{CataList} que a cada \emph{Transaction} que é representada pelo par \textit{(Entity, (Value,Entity))}, vai aplicar o split de maneira a criar um par de pares com a seguinte representação \textit{((Entity, \-Value), (Entity, Value))} e posteriormente inserir numa lista cada par criado utilizando a função \emph{singl} aplicada a cada elemento do par de pares. Posteriormente aplicamos a função \emph{conc} para concatenar os elementos que pertencem ao par de pares. Após o cata, temos que eliminar os repetidos e somar os seus \emph{Values}. Para isso utilizamos a função \emph{col} que recebe a lista resultante do cataList e devolve uma lista de pares, em que no primeiro elemento tem o valor da \emph{Entity} e no segundo uma lista de \emph{Values} que estão associados a essa \emph{Entity}. Posteriormente aplicamos a função \emph{map} que aplica a toda a lista resultante de aplicar \emph{col}, a função \emph{id} ao primeiro elemento e a função \emph{sum} ao segundo elemento, retornando a lista de acordo com o pedido no enunciado.  
+
+
+\subsubsection{isValidMagicNr}
+\begin{code}
+
+isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
+        where eq = uncurry (==)
+
+\end{code}
 
 \subsection*{Problema 2}
 
