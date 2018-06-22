@@ -1038,14 +1038,10 @@ instance Functor QTree where
 rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (split (p2.p2.p2) (p1.p2))))))
 
 scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
-<<<<<<< HEAD
-invertQTree = undefined 
-=======
 
 invertQTree = undefined {-anaQTree(((f >< id) -|- id) . outQTree) 
                 where f = ((-255)><((-255)><((-255)><(-255))))-}
 
->>>>>>> questao 5 func 1
 compressQTree = undefined
 
 outlineQTree = undefined
@@ -1087,7 +1083,7 @@ drawPTree = undefined
 
 \begin{code}
 singletonbag x = B [(x,1)]
-muB = concat . map p1 
+muB = undefined --concat . map p1 
 dist = undefined
 \end{code}
 
