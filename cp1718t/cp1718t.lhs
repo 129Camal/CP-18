@@ -105,13 +105,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} 27
 \\\hline
-a11111 & Nome1 (preencher)	
+a72626 & Inês Marques Sampaio 
 \\
-a22222 & Nome2 (preencher)	
+a73639 & Frederico Daniel Pereira Pinto 
 \\
-a33333 & Nome3 (preencher)	
+a74568 & Ricardo Manuel Cerineu Canela  
 \end{tabular}
 \end{center}
 
@@ -1013,8 +1013,7 @@ instance Functor QTree where
 
 rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (split (p2.p2.p2) (p1.p2))))))
 scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
-invertQTree = undefined {-anaQTree(((f >< id) -|- id) . outQTree) 
-                where f = ((-255)><((-255)><((-255)><(-255))))-}
+invertQTree = undefined 
 compressQTree = undefined
 outlineQTree = undefined
 \end{code}
@@ -1035,17 +1034,19 @@ loop = g . split (split (mul . p1) (succ . p2 . p1)) (split (mul . p2) (succ . p
 
 \begin{code}
 inFTree = either Unit ((uncurry (uncurry Comp)) . assocl)
-outFTree = undefined
-baseFTree = undefined
-recFTree = undefined
-cataFTree = undefined
-anaFTree = undefined
-hyloFTree = undefined
+outFTree (Unit a) = i1 a
+outFTree (Comp a b c) = i2 (a,(b,c))
+baseFTree x y z = y -|- (x >< (z >< z))   
+recFTree x = baseFTree id id x
+cataFTree g = g . recFTree(cataFTree g) . outFTree
+anaFTree g = inFTree . recFTree(anaFTree g) . g
+hyloFTree g h = cataFTree g . anaFTree h
 
 instance Bifunctor FTree where
-    bimap = undefined
+    bimap f g = cataFTree(inFTree . (baseFTree f g id))
 
-generatePTree n = undefined 
+generatePTree = anaFTree(((const 1.0) -|- split (((sqrt(2)/2)^) . succ) (split id id)) . outNat)
+
 drawPTree = undefined
 \end{code}
 
