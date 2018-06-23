@@ -1471,7 +1471,13 @@ Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar e
 \\[\blanklineskip]%
 \>[B]{}\Varid{scaleQTree}\;\Varid{n}\mathrel{=}\Varid{anaQTree}\;(((\Varid{id}\times((\Varid{n}\mathbin{*})\times(\Varid{n}\mathbin{*})))+\Varid{id})\comp \Varid{outQTree}){}\<[E]%
 \\[\blanklineskip]%
+<<<<<<< HEAD
 \>[B]{}\Varid{invertQTree}\mathrel{=}\bot {}\<[E]%
+=======
+\>[B]{}\Varid{invertQTree}\mathrel{=}\mathsf{fmap}\;(\Varid{invertPixel}){}\<[E]%
+\\
+\>[B]{}\Varid{invertPixel}\;(\Conid{PixelRGBA8}\;\Varid{a}\;\Varid{b}\;\Varid{c}\;\Varid{d})\mathrel{=}\Conid{PixelRGBA8}\;(\mathrm{255}\mathbin{-}\Varid{a})\;(\mathrm{255}\mathbin{-}\Varid{b})\;(\mathrm{255}\mathbin{-}\Varid{c})\;\Varid{d}{}\<[E]%
+>>>>>>> invert
 \\[\blanklineskip]%
 \>[B]{}\Varid{compressQTree}\mathrel{=}\bot {}\<[E]%
 \\[\blanklineskip]%
@@ -1612,6 +1618,7 @@ Construindo um anamorfismo que aplica \emph{(const 1.0)} ou \emph{(split (((sqrt
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+<<<<<<< HEAD
 \>[B]{}\Varid{singletonbag}\mathrel{=}\mathit B\comp \Varid{singl}\comp \conj{\Varid{id}}{\underline{\mathrm{1}}}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\mu \mathrel{=}\mathit B\comp \Varid{concat}\comp \map \;(\Varid{subsilia})\comp \Varid{unB}\comp \mathsf{fmap}\;\Varid{unB}{}\<[E]%
@@ -1620,6 +1627,11 @@ Construindo um anamorfismo que aplica \emph{(const 1.0)} ou \emph{(split (((sqrt
 \>[7]{}\mathbf{where}\;\Varid{subsilia}\;(\Varid{a},\Varid{b})\mathrel{=}\map \;(\Varid{id}\times(\mathbin{*}\Varid{b}))\;\Varid{a}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{dist}\mathrel{=}\Varid{aux}\comp \conj{\Varid{id}}{\Varid{sum}\comp \map \;(\p2)}\comp \Varid{unB}{}\<[E]%
+=======
+\>[B]{}\Varid{singletonbag}\;\Varid{x}\mathrel{=}\mathit B\;[\mskip1.5mu (\Varid{x},\mathrm{1})\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\mu \mathrel{=}\bot \mbox{\onelinecomment concat . map p1 }{}\<[E]%
+>>>>>>> invert
 \\
 \>[B]{}\hsindent{7}{}\<[7]%
 \>[7]{}\mathbf{where}\;\Varid{aux}\;(\Varid{a},\Varid{b})\mathrel{=}\map \;(\lambda (\Varid{c},\Varid{d})\to (\Varid{a},(\Varid{toFloat}\;\Varid{d}\mathbin{/}\Varid{toFloat}\;\Varid{b})))\;\Varid{a}{}\<[E]%
