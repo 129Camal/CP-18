@@ -1331,7 +1331,25 @@ De seguida apresenta-se a definição da função \emph{allTransactions}, esta f
 \ColumnHook
 \end{hscode}\resethooks
 
+
 Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso receba um \emph{bc} apenas irá retirar a lista das transações presentes, caso seja uma \emph{BlockChain} do tipo \emph{bcs} apenas retiramos a lista de transações presente no \emph{Block}.
+
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{BlockChain}}
+           \ar[d]_-{\ensuremath{\Varid{allTransactions}}}
+           \ar[r]_-{\ensuremath{\Varid{outBlockChain}}}
+&
+    \ensuremath{\Conid{Block}\mathbin{+}\Conid{Block}\times\Conid{BlockChain}}
+           \ar[d]^-{\ensuremath{\Varid{id}\mathbin{+}\Varid{id}\times\cata{\Varid{g}}}}
+\\
+     \ensuremath{\Conid{Transactions}}
+&
+     \ensuremath{\Conid{Block}\mathbin{+}\Conid{Block}\times\Conid{Transactions}}
+           \ar[l]^-{\ensuremath{\Varid{g}}}
+}
+\end{eqnarray*}
 
 \subsubsection{ledger}
 
@@ -1341,10 +1359,10 @@ Com a função \emph{ledger} pretende-se obter uma lista de pares, (\emph{Entity
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{9}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{15}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{74}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{73}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{ledger}\mathrel{=}\Varid{m}\comp \Varid{col}\comp \Varid{cataList}\;\alt{\Varid{nil}}{\mathsf{conc}\comp (\mathsf{conc}\comp \Varid{sp}\comp \conj{\Varid{l}}{\Varid{r}}{}\<[74]%
-\>[74]{}\times\Varid{id})}\comp \Varid{allTransactions}{}\<[E]%
+\>[B]{}\Varid{ledger}\mathrel{=}\Varid{m}\comp \Varid{col}\comp \Varid{cataList}\;\alt{\Varid{nil}}{\mathsf{conc}\comp (\mathsf{conc}\comp \Varid{sp}\comp \conj{\Varid{l}}{\Varid{r}}{}\<[73]%
+\>[73]{}\times\Varid{id})}\comp \Varid{allTransactions}{}\<[E]%
 \\
 \>[B]{}\hsindent{9}{}\<[9]%
 \>[9]{}\mathbf{where}\;\Varid{sp}\mathrel{=}(\Varid{singl}\times\Varid{singl}){}\<[E]%
@@ -1362,8 +1380,31 @@ Com a função \emph{ledger} pretende-se obter uma lista de pares, (\emph{Entity
 
 Para resolver esta função, utilizamos em primeira instância a função anteriormente desenvolvida, \emph{allTransactions}. Com a lista de transações obtida, aplicamos um \emph{CataList} que a cada \emph{Transaction} que é representada pelo par \textit{(Entity, (Value,Entity))}, vai aplicar o split de maneira a criar um par de pares com a seguinte representação \textit{((Entity, \-Value), (Entity, Value))} e posteriormente inserir numa lista cada par criado utilizando a função \emph{singl} aplicada a cada elemento do par de pares. Posteriormente aplicamos a função \emph{conc} para concatenar os elementos que pertencem ao par de pares. Após o cata, temos que eliminar os repetidos e somar os seus \emph{Values}. Para isso utilizamos a função \emph{col} que recebe a lista resultante do cataList e devolve uma lista de pares, em que no primeiro elemento tem o valor da \emph{Entity} e no segundo uma lista de \emph{Values} que estão associados a essa \emph{Entity}. Posteriormente aplicamos a função \emph{map} que aplica a toda a lista resultante de aplicar \emph{col}, a função \emph{id} ao primeiro elemento e a função \emph{sum} ao segundo elemento, retornando a lista de acordo com o pedido no enunciado.  
 
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{\Conid{BlockChain}}
+           \ar[d]_-{\ensuremath{\Varid{ledger}}}
+           \ar[r]_-{\ensuremath{\Varid{allTransactions}}}      
+&
+      \ensuremath{\Conid{Transactions}}
+           \ar[r]^-{\cata{g}}
+&
+      \ensuremath{(\Conid{Entity}\times\Conid{Value})\mathbin{*}}
+            \ar[d]^-{\ensuremath{\Varid{col}}}
+\\
+      \ensuremath{\Conid{Ledger}}   
+&
+&
+      \ensuremath{(\Conid{Entity}\times\Conid{Value}\mathbin{*})\mathbin{*}}
+           \ar[ll]^-{\ensuremath{\map \;(\Varid{id}\times\Varid{sum})}}
+}
+\end{eqnarray*}
+
 
 \subsubsection{isValidMagicNr}
+
+Com a função \emph{isValidMagicNr} pretende-se que a partir de uma \emph{BlockChain} se consiga obter o valor lógico sobre a existência de números mágicos repetidos na \emph{BlockChain}.
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{9}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -1374,6 +1415,24 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 \>[9]{}\mathbf{where}\;\Varid{eq}\mathrel{=}\uncurry{(\equiv )}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar em todos os tipos de \emph{Block}, o seu \emph{MagicNo} e posteriormente colocar numa lista com as funções \emph{singl} ou \emph{cons}. Depois para apurar se a lista de \emph{MagicNo} contém repetidos, aplicamos um \emph{split} de maneira a ter no primeiro elemento do par a lista sem mudanças e na segundo elemento a lista resultante de aplicar a função \emph{nub} que devolve a lista de \emph{MagicNo} sem repetidos, caso os contenha. Posteriormente comparamos as duas e devolvemos o resultado. 
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{\Conid{BlockChain}}
+           \ar[d]_-{\ensuremath{\Varid{isValidMagicNr}}}
+           \ar[r]_-{\ensuremath{\Varid{cataBlockchain}}}      
+&
+      \ensuremath{\Conid{MagicNumber}\mathbin{*}}
+           \ar[d]^-{\ensuremath{\conj{\Varid{id}}{\Varid{nub}}}}
+\\
+      \ensuremath{\Conid{Bool}}   
+&
+      \ensuremath{(\Conid{MagicNo}\mathbin{*},\Conid{MagicNo}\mathbin{*})}
+            \ar[l]_-{\ensuremath{\uncurry{(\equiv )}}}
+}
+\end{eqnarray*}
 
 \subsection*{Problema 2}
 
@@ -1409,29 +1468,58 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 \>[36]{}\Varid{baseQTree}\;\Varid{g}\;\Varid{id}){}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{rotateQTree}\mathrel{=}\Varid{cataQTree}\;(\Varid{inQTree}\comp ((\Varid{id}\times\Varid{swap})+\conj{\p1\comp \p2\comp \p2}{\conj{\p1}{\conj{\p2\comp \p2\comp \p2}{\p1\comp \p2}}})){}\<[E]%
-\\
+\\[\blanklineskip]%
 \>[B]{}\Varid{scaleQTree}\;\Varid{n}\mathrel{=}\Varid{anaQTree}\;(((\Varid{id}\times((\Varid{n}\mathbin{*})\times(\Varid{n}\mathbin{*})))+\Varid{id})\comp \Varid{outQTree}){}\<[E]%
-\\
+\\[\blanklineskip]%
 \>[B]{}\Varid{invertQTree}\mathrel{=}\bot {}\<[E]%
-\\
+\\[\blanklineskip]%
 \>[B]{}\Varid{compressQTree}\mathrel{=}\bot {}\<[E]%
-\\
+\\[\blanklineskip]%
 \>[B]{}\Varid{outlineQTree}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
 \subsection*{Problema 3}
 
+Para obter as funções \emph{base} e \emph{loop} aplicamos a lei da recursividade múltipla e a lei do \emph{banana-split}.
+
+\subsubsection{Prova}
+
+\subsubsection{Base}
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{base}\mathrel{=}\Varid{f}\comp \conj{\conj{\Varid{one}}{\succ }}{\conj{\Varid{one}}{\Varid{one}}}{}\<[E]%
 \\
 \>[B]{}\hsindent{7}{}\<[7]%
 \>[7]{}\mathbf{where}\;\Varid{f}\;((\Varid{x1},\Varid{y1}),(\Varid{x2},\Varid{y2}))\mathrel{=}(\Varid{x1},\Varid{y1},\Varid{x2},\Varid{y2}){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Após aplicar a função, tivemos ainda que transformar o par de pares num tuplo que é o tipo de saída da função \emph{base}, para isso criamos a função \emph{f}. 
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{\Conid{Integer}}
+           \ar[r]_-{\ensuremath{\conj{\conj{\Varid{one}}{\succ }}{\conj{\Varid{one}}{\Varid{one}}}}} 
+           \ar[d]_-{\ensuremath{\Varid{base}}}    
+&
+      \ensuremath{((\Conid{Integer},\Conid{Integer}),(\Conid{Integer},\Conid{Integer}))}
+           \ar[dl]^-{\ensuremath{\Varid{f}}}
+\\
+      \ensuremath{(\Conid{Integer},\Conid{Integer},\Conid{Integer},\Conid{Integer})}  
+}
+\end{eqnarray*}
+
+\subsubsection{Loop}
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{loop}\mathrel{=}\Varid{g}\comp \conj{\conj{\Varid{mul}\comp \p1}{\succ \comp \p2\comp \p1}}{\conj{\Varid{mul}\comp \p2}{\succ \comp \p2\comp \p2}}\comp \Varid{f}{}\<[E]%
 \\
 \>[B]{}\hsindent{7}{}\<[7]%
@@ -1441,6 +1529,24 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 \>[13]{}\Varid{g}\;((\Varid{x1},\Varid{y1}),(\Varid{x2},\Varid{y2}))\mathrel{=}(\Varid{x1},\Varid{y1},\Varid{x2},\Varid{y2}){}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+Tal como acontece na função \emph{base}, na função \emph{loop} temos que alterar os tipos de saída e de entrada, para isso criou-se as funções \emph{f} e \emph{g} respetivamente.
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{(\Conid{Integer},\Conid{Integer},\Conid{Integer},\Conid{Integer})}
+           \ar[r]_-{\ensuremath{\Varid{f}}} 
+           \ar[d]_-{\ensuremath{\Varid{base}}}    
+&
+      \ensuremath{((\Conid{Integer},\Conid{Integer}),(\Conid{Integer},\Conid{Integer}))}
+           \ar[d]^-{\ensuremath{\conj{\conj{\Varid{mul}\comp \p1}{\succ \comp \p2\comp \p1}}{\conj{\Varid{mul}\comp \p2}{\succ \comp \p2\comp \p2}}}}
+\\
+      \ensuremath{(\Conid{Integer},\Conid{Integer},\Conid{Integer},\Conid{Integer})} 
+&
+      \ensuremath{((\Conid{Integer},\Conid{Integer}),(\Conid{Integer},\Conid{Integer}))}
+            \ar[l]^-{\ensuremath{\Varid{g}}}      
+}
+\end{eqnarray*}
 
 \subsection*{Problema 4}
 
@@ -1468,9 +1574,34 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 \\
 \>[B]{}\hsindent{5}{}\<[5]%
 \>[5]{}\Varid{bimap}\;\Varid{f}\;\Varid{g}\mathrel{=}\Varid{cataFTree}\;(\Varid{inFTree}\comp (\Varid{baseFTree}\;\Varid{f}\;\Varid{g}\;\Varid{id})){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\subsubsection{GeneratePTree}
+
+Esta função tem como objetivo gerar uma árvore de Pitágoras para uma dada ordem, utilizando um anamorfismo.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{generatePTree}\mathrel{=}\Varid{anaFTree}\;((\underline{\mathrm{1.0}}+\conj{((\Varid{sqrt}\;(\mathrm{2})\mathbin{/}\mathrm{2})\mathbin{\uparrow})\comp \succ }{\conj{\Varid{id}}{\Varid{id}}})\comp \Varid{outNat}){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Construindo um anamorfismo que aplica \emph{(const 1.0)} ou \emph{(split (((sqrt(2)/2)^) . succ) (split id id)))} dependendo do resultado de aplicar \emph{outNat}, conseguimos construir a respetiva PTree. 
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{\Conid{Int}}
+           \ar[r]_-{\ana{g}}     
+&
+      \ensuremath{\Conid{PTree}}    
+}
+\end{eqnarray*}
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{drawPTree}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
@@ -1479,12 +1610,19 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{singletonbag}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{singletonbag}\mathrel{=}\mathit B\comp \Varid{singl}\comp \conj{\Varid{id}}{\underline{\mathrm{1}}}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mu \mathrel{=}\mathit B\comp \Varid{concat}\comp \map \;(\Varid{subsilia})\comp \Varid{unB}\comp \mathsf{fmap}\;\Varid{unB}{}\<[E]%
 \\
-\>[B]{}\mu \mathrel{=}\bot {}\<[E]%
+\>[B]{}\hsindent{7}{}\<[7]%
+\>[7]{}\mathbf{where}\;\Varid{subsilia}\;(\Varid{a},\Varid{b})\mathrel{=}\map \;(\Varid{id}\times(\mathbin{*}\Varid{b}))\;\Varid{a}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{dist}\mathrel{=}\Varid{aux}\comp \conj{\Varid{id}}{\Varid{sum}\comp \map \;(\p2)}\comp \Varid{unB}{}\<[E]%
 \\
-\>[B]{}\Varid{dist}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\hsindent{7}{}\<[7]%
+\>[7]{}\mathbf{where}\;\Varid{aux}\;(\Varid{a},\Varid{b})\mathrel{=}\map \;(\lambda (\Varid{c},\Varid{d})\to (\Varid{a},(\Varid{toFloat}\;\Varid{d}\mathbin{/}\Varid{toFloat}\;\Varid{b})))\;\Varid{a}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 

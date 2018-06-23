@@ -993,7 +993,25 @@ allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id)))
 
 \end{code}
 
+
 Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso receba um \emph{bc} apenas irá retirar a lista das transações presentes, caso seja uma \emph{BlockChain} do tipo \emph{bcs} apenas retiramos a lista de transações presente no \emph{Block}.
+
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |BlockChain|
+           \ar[d]_-{|allTransactions|}
+           \ar[r]_-{|outBlockChain|}
+&
+    |Block + Block >< BlockChain|
+           \ar[d]^-{|id + id >< cataNat g|}
+\\
+     |Transactions|
+&
+     |Block + Block >< Transactions|
+           \ar[l]^-{|g|}
+}
+\end{eqnarray*}
 
 \subsubsection{ledger}
 
@@ -1010,14 +1028,55 @@ ledger= m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id)))
 
 Para resolver esta função, utilizamos em primeira instância a função anteriormente desenvolvida, \emph{allTransactions}. Com a lista de transações obtida, aplicamos um \emph{CataList} que a cada \emph{Transaction} que é representada pelo par \textit{(Entity, (Value,Entity))}, vai aplicar o split de maneira a criar um par de pares com a seguinte representação \textit{((Entity, \-Value), (Entity, Value))} e posteriormente inserir numa lista cada par criado utilizando a função \emph{singl} aplicada a cada elemento do par de pares. Posteriormente aplicamos a função \emph{conc} para concatenar os elementos que pertencem ao par de pares. Após o cata, temos que eliminar os repetidos e somar os seus \emph{Values}. Para isso utilizamos a função \emph{col} que recebe a lista resultante do cataList e devolve uma lista de pares, em que no primeiro elemento tem o valor da \emph{Entity} e no segundo uma lista de \emph{Values} que estão associados a essa \emph{Entity}. Posteriormente aplicamos a função \emph{map} que aplica a toda a lista resultante de aplicar \emph{col}, a função \emph{id} ao primeiro elemento e a função \emph{sum} ao segundo elemento, retornando a lista de acordo com o pedido no enunciado.  
 
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |BlockChain|
+           \ar[d]_-{|ledger|}
+           \ar[r]_-{|allTransactions|}      
+&
+      |Transactions|
+           \ar[r]^-{\cata{g}}
+&
+      |(Entity >< Value)*|
+            \ar[d]^-{|col|}
+\\
+      |Ledger|   
+&
+&
+      |(Entity >< Value*)*|
+           \ar[ll]^-{|map(id><sum)|}
+}
+\end{eqnarray*}
+
 
 \subsubsection{isValidMagicNr}
+
+Com a função \emph{isValidMagicNr} pretende-se que a partir de uma \emph{BlockChain} se consiga obter o valor lógico sobre a existência de números mágicos repetidos na \emph{BlockChain}.
+
 \begin{code}
 
 isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
         where eq = uncurry (==)
 
 \end{code}
+
+Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar em todos os tipos de \emph{Block}, o seu \emph{MagicNo} e posteriormente colocar numa lista com as funções \emph{singl} ou \emph{cons}. Depois para apurar se a lista de \emph{MagicNo} contém repetidos, aplicamos um \emph{split} de maneira a ter no primeiro elemento do par a lista sem mudanças e na segundo elemento a lista resultante de aplicar a função \emph{nub} que devolve a lista de \emph{MagicNo} sem repetidos, caso os contenha. Posteriormente comparamos as duas e devolvemos o resultado. 
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |BlockChain|
+           \ar[d]_-{|isValidMagicNr|}
+           \ar[r]_-{|cataBlockchain|}      
+&
+      |MagicNumber*|
+           \ar[d]^-{|split id nub|}
+\\
+      |Bool|   
+&
+      |(MagicNo*, MagicNo*)|
+            \ar[l]_-{|uncurry (==)|}
+}
+\end{eqnarray*}
 
 \subsection*{Problema 2}
 
@@ -1039,8 +1098,7 @@ rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (s
 
 scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
 
-invertQTree = undefined {-anaQTree(((f >< id) -|- id) . outQTree) 
-                where f = ((-255)><((-255)><((-255)><(-255))))-}
+invertQTree = undefined 
 
 compressQTree = undefined
 
@@ -1049,15 +1107,57 @@ outlineQTree = undefined
 
 \subsection*{Problema 3}
 
+Para obter as funções \emph{base} e \emph{loop} aplicamos a lei da recursividade múltipla e a lei do \emph{banana-split}.
+
+\subsubsection{Prova}
+
+\subsubsection{Base}
+
 \begin{code}
 base = f . split (split one succ) (split one one)
       where f ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
+\end{code}
 
+Após aplicar a função, tivemos ainda que transformar o par de pares num tuplo que é o tipo de saída da função \emph{base}, para isso criamos a função \emph{f}. 
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |Integer|
+           \ar[r]_-{|split (split one succ) (split one one)|} 
+           \ar[d]_-{|base|}    
+&
+      |((Integer , Integer) , (Integer , Integer))|
+           \ar[dl]^-{|f|}
+\\
+      |(Integer, Integer, Integer, Integer)|  
+}
+\end{eqnarray*}
+
+\subsubsection{Loop}
+
+\begin{code}
 loop = g . split (split (mul . p1) (succ . p2 . p1)) (split (mul . p2) (succ . p2 . p2)) . f
       where f (x1, y1, x2, y2) = ((x1,y1), (x2, y2))
             g ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
-
 \end{code}
+
+Tal como acontece na função \emph{base}, na função \emph{loop} temos que alterar os tipos de saída e de entrada, para isso criou-se as funções \emph{f} e \emph{g} respetivamente.
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |(Integer, Integer, Integer, Integer)|
+           \ar[r]_-{|f|} 
+           \ar[d]_-{|base|}    
+&
+      |((Integer , Integer) , (Integer , Integer))|
+           \ar[d]^-{|split (split (mul . p1) (succ . p2 . p1)) (split (mul . p2) (succ . p2 . p2))|}
+\\
+      |(Integer, Integer, Integer, Integer)| 
+&
+      |((Integer , Integer) , (Integer , Integer))|
+            \ar[l]^-{|g|}      
+}
+\end{eqnarray*}
 
 \subsection*{Problema 4}
 
@@ -1073,9 +1173,28 @@ hyloFTree g h = cataFTree g . anaFTree h
 
 instance Bifunctor FTree where
     bimap f g = cataFTree(inFTree . (baseFTree f g id))
+\end{code}
 
+\subsubsection{GeneratePTree}
+
+Esta função tem como objetivo gerar uma árvore de Pitágoras para uma dada ordem, utilizando um anamorfismo.
+
+\begin{code}
 generatePTree = anaFTree(((const 1.0) -|- split (((sqrt(2)/2)^) . succ) (split id id)) . outNat)
+\end{code}
 
+Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{outNat} ao tipo inicial que a função \emph{generatePTree} recebe, conseguimos construir a respetiva PTree. 
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |Int|
+           \ar[r]_-{\ana{g}}     
+&
+      |PTree|    
+}
+\end{eqnarray*}
+
+\begin{code}
 drawPTree = undefined
 \end{code}
 
