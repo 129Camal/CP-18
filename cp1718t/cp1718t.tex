@@ -1470,7 +1470,9 @@ Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar e
 \\[\blanklineskip]%
 \>[B]{}\Varid{scaleQTree}\;\Varid{n}\mathrel{=}\Varid{anaQTree}\;(((\Varid{id}\times((\Varid{n}\mathbin{*})\times(\Varid{n}\mathbin{*})))+\Varid{id})\comp \Varid{outQTree}){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{invertQTree}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{invertQTree}\mathrel{=}\mathsf{fmap}\;(\Varid{invertPixel}){}\<[E]%
+\\
+\>[B]{}\Varid{invertPixel}\;(\Conid{PixelRGBA8}\;\Varid{a}\;\Varid{b}\;\Varid{c}\;\Varid{d})\mathrel{=}\Conid{PixelRGBA8}\;(\mathrm{255}\mathbin{-}\Varid{a})\;(\mathrm{255}\mathbin{-}\Varid{b})\;(\mathrm{255}\mathbin{-}\Varid{c})\;\Varid{d}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{compressQTree}\mathrel{=}\bot {}\<[E]%
 \\[\blanklineskip]%
@@ -1483,6 +1485,129 @@ Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar e
 Para obter as funções \emph{base} e \emph{loop} aplicamos a lei da recursividade múltipla e a lei do \emph{banana-split}.
 
 \subsubsection{Prova}
+\textbf{Conversão de l k:}
+
+\begin{eqnarray*}
+\start
+  \ensuremath{\begin{lcbr}\Varid{l}\;\Varid{k}\;\mathrm{0}\mathrel{=}\Varid{k}\mathbin{+}\mathrm{1}\\\Varid{l}\;\Varid{k}\;(\Varid{d}\mathbin{+}\mathrm{1})\mathrel{=}\Varid{l}\;\Varid{k}\;\Varid{d}\mathbin{+}\mathrm{1}\end{lcbr}}
+%
+\just\equiv{ Igualdade extensional; Cancelamento-x}
+  \ensuremath{\begin{lcbr}\Varid{l}\;\Varid{k}\comp \underline{\mathrm{0}}\mathrel{=}\succ \comp \Varid{k}\\\Varid{l}\;\Varid{k}\comp \succ \mathrel{=}\succ \comp \p2\comp \conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}}\end{lcbr}}
+\just\equiv{Eq-+}
+%
+\ensuremath{\alt{\Varid{l}\;\Varid{k}\comp \underline{\mathrm{0}}}{\Varid{l}\;\Varid{k}\comp \succ }\mathrel{=}\alt{\succ \comp \Varid{k}}{\succ \comp \p2\comp \conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}}}}
+\just\equiv{ Fusão-+; in = \ensuremath{\alt{\underline{\mathrm{0}}}{\succ }} ; Absorção-+}
+%
+\ensuremath{\Varid{l}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\succ \comp \Varid{k}}{\succ \comp \p2}\comp (\Varid{id}\mathbin{+}\conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}})}
+\just\equiv{ F f = (id + f)}
+%
+\ensuremath{\Varid{l}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\succ \comp \Varid{k}}{\succ \comp \p2}\comp \Conid{F}\;\conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}}}
+\end{eqnarray*}
+
+\textbf{Conversão de f k:}
+
+\begin{eqnarray*}
+\start
+\ensuremath{\begin{lcbr}\Varid{f}\;\Varid{k}\;\mathrm{0}\mathrel{=}\mathrm{1}\\\Varid{f}\;\Varid{k}\;(\Varid{d}\mathbin{+}\mathrm{1})\mathrel{=}(\Varid{d}\mathbin{+}\Varid{k}\mathbin{+}\mathrm{1})\mathbin{*}\Varid{f}\;\Varid{k}\;\Varid{d}\end{lcbr}}
+\just\equiv{ Igualdade extensional\{73\}; (d + k  + 1) = l k d}
+        \ensuremath{\begin{lcbr}\Varid{f}\;\Varid{k}\comp \underline{\mathrm{0}}\mathrel{=}\underline{\mathrm{1}}\\\Varid{f}\;\Varid{k}\comp \succ \mathrel{=}\Varid{mul}\;\conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}}\end{lcbr}}
+\just\equiv{ Eq-+}
+
+\ensuremath{\alt{\Varid{f}\;\Varid{k}\comp \underline{\mathrm{0}}}{\Varid{f}\;\Varid{k}\comp \succ }\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}\;\conj{\Varid{l}\;\Varid{k}}{\Varid{f}\;\Varid{k}}}}
+\just\equiv{ Fusão-+; in = \ensuremath{\alt{\underline{\mathrm{0}}}{\succ }} ; Absorção-+}
+
+\ensuremath{\Varid{f}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{l}\;\Varid{k}}{\Varid{f}\;\Varid{k}})}
+
+\just\equiv{ F f = (id + f) }
+
+\ensuremath{\Varid{f}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp \Conid{F}\;\conj{\Varid{l}\;\Varid{k}}{\Varid{f}\;\Varid{k}}} $<=>$ \ensuremath{\Varid{f}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{l}\;\Varid{k}}{\Varid{f}\;\Varid{k}})}
+\end{eqnarray*}
+
+
+\textbf{Fokkinga:}
+
+\begin{eqnarray*}
+\start
+\just\equiv{Fokkinga; in = [0,succ]}
+\ensuremath{\begin{lcbr}\Varid{f}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\mathrm{1}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{l}\;\Varid{k}}{\Varid{f}\;\Varid{k}})\\\Varid{l}\;\Varid{k}\comp \mathbf{in}\mathrel{=}\alt{\succ }{\succ }\comp \p2\comp (\Varid{id}\mathbin{+}\conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}})\end{lcbr}}
+\more
+\ensuremath{\conj{\Varid{f}\;\Varid{k}}{\Varid{l}\;\Varid{k}}\mathrel{=}}\cata{\ensuremath{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\succ }{\succ }\comp \p2}}}
+\qed
+\end{eqnarray*}
+
+\textbf{Conversão g: }
+
+\begin{eqnarray*}
+\start
+ \ensuremath{\begin{lcbr}\Varid{g}\;\mathrm{0}\mathrel{=}\mathrm{1}\\\Varid{g}\;(\Varid{d}\mathbin{+}\mathrm{1})\mathrel{=}(\Varid{d}\mathbin{+}\mathrm{1})\mathbin{*}\Varid{g}\;\Varid{d}\end{lcbr}}
+
+\just\equiv{ Igualdade extensional x 2, Def-comp}
+  \ensuremath{\begin{lcbr}\Varid{g}\comp \Varid{zero}\mathrel{=}\Varid{one}\\\Varid{g}\comp \succ \mathrel{=}\Varid{mul}\comp \conj{\Varid{s}}{\Varid{g}}\end{lcbr}}
+\just\equiv{ Eq-+}
+  \ensuremath{\alt{\Varid{g}\comp \Varid{zero}}{\Varid{g}\comp \succ }\mathrel{=}\alt{\Varid{one}}{\Varid{mul}\comp \conj{\Varid{s}}{\Varid{g}}}}
+\just\equiv{Fusão-+, Absorção-+}
+  \ensuremath{\Varid{g}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{s}}{\Varid{g}}}
+\just\equiv{ F f = (id + f)}
+%
+\ensuremath{\Varid{g}\comp \mathbf{in}\mathrel{=}\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp \Conid{F}\;\conj{\Varid{s}}{\Varid{g}}} $<=>$\ensuremath{\alt{\underline{\mathrm{1}}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{s}}{\Varid{g}})}
+\qed
+\end{eqnarray*}
+
+\textbf{Conversão s:}
+
+\begin{eqnarray*}
+\start
+  \ensuremath{\begin{lcbr}\Varid{s}\;\mathrm{0}\mathrel{=}\mathrm{1}\\\Varid{s}\;(\Varid{d}\mathbin{+}\mathrm{1})\mathrel{=}(\Varid{s}\;\Varid{d})\mathbin{+}\mathrm{1}\end{lcbr}}
+\just\equiv{ Igualdade extensional  x 2, Def-comp ; Cancelamento-x}
+\ensuremath{\begin{lcbr}\Varid{s}\comp \mathrm{0}\mathrel{=}\mathrm{1}\\\Varid{s}\comp \succ \mathrel{=}\succ \comp \p2\comp \conj{\Varid{g}}{\Varid{s}}\end{lcbr}}
+\just\equiv{Eq-+}
+  \ensuremath{\alt{\Varid{s}\comp \underline{\mathrm{0}}}{\Varid{s}\comp \succ }\mathrel{=}\alt{\underline{\mathrm{1}}}{\succ \comp \p2\comp \conj{\Varid{g}}{\Varid{s}}}}
+\just\equiv{Fusão-+ ; in = [0, succ] ; Absorção-+ ; F f = id+f}
+  \ensuremath{\Varid{s}\comp \mathbf{in}\mathrel{=}\alt{\mathrm{1}}{\succ \comp \p2}\comp (\Varid{id}\mathbin{+}\conj{\Varid{g}}{\Varid{s}})}
+\qed
+\end{eqnarray*}
+
+\textbf{Fokkinga:}
+
+\begin{eqnarray*}
+\start
+\just\equiv{Fokkinga ;in = [0,succ]}
+\ensuremath{\begin{lcbr}\Varid{g}\comp \mathbf{in}\mathrel{=}\alt{\mathrm{1}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\conj{\Varid{s}}{\Varid{g}})\\\Varid{s}\comp \mathbf{in}\mathrel{=}\alt{\mathrm{1}}{\succ }\comp (\Varid{id}\mathbin{+}\conj{\Varid{g}}{\Varid{s}})\end{lcbr}}
+\ensuremath{\conj{\Varid{g}}{\Varid{s}}\mathrel{=}(\Varid{cata}\;\conj{\alt{\mathrm{1}}{\Varid{mul}}}{\alt{\mathrm{1}}{\succ }\comp \p2})}
+\qed
+\end{eqnarray*}
+
+\textbf{Banana-split:}
+
+\begin{eqnarray*}
+\start
+  \ensuremath{\conj{\cata{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\succ }{\succ \comp \p2}}}}{\cata{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\Varid{one}}{\succ \comp \p2}}}}}
+\just\equiv{Banana-Split}
+  \ensuremath{\cata{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\succ }{\succ \comp \p2}}\times\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\Varid{one}}{\succ \comp \p2}}\comp \conj{\Conid{F}\;\p1}{\Conid{F}\;\p2}}}
+\just\equiv{Absorção - x}
+  \ensuremath{\cata{\conj{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\succ }{\succ \comp \p2}}\comp (\Conid{F}\;\p1)}{\conj{\alt{\Varid{one}}{\Varid{mul}}}{\alt{\Varid{one}}{\succ \comp \p2}}\comp (\Conid{F}\;\p2)}}}
+\just\equiv{Fusão - x}
+  \ensuremath{\cata{\conj{\conj{\alt{\Varid{one}}{\Varid{mul}}\comp (\Conid{F}\;\p1)}{\alt{\succ }{\succ \comp \p2}\comp (\Conid{F}\;\p1)}}{\conj{\alt{\Varid{one}}{\Varid{mul}}\comp (\Conid{F}\;\p2)}{\alt{\Varid{one}}{\succ \comp \p2}\comp (\Conid{F}\;\p2)}}}}
+\just\equiv{Def F f = id + f}
+  \ensuremath{\cata{\conj{\conj{\alt{\Varid{one}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\p1)}{\alt{\succ }{\succ \comp \p2}\comp (\Varid{id}\mathbin{+}\p1)}}{\conj{\alt{\Varid{one}}{\Varid{mul}}\comp (\Varid{id}\mathbin{+}\p2)}{\alt{\Varid{one}}{\succ \comp \p2}\comp (\Varid{id}\mathbin{+}\p2)}}}}
+\just\equiv{Absorção-+, Nat-id}
+  \ensuremath{\cata{\conj{\conj{\alt{\Varid{one}}{\Varid{mul}\comp \p1}}{\alt{\succ }{\succ \comp \p2\comp \p1}}}{\conj{\alt{\Varid{one}}{\Varid{mul}\comp \p2}}{\alt{\Varid{one}}{(\succ \comp \p2\comp \p2)}}}}}
+\just\equiv{Lei da Troca x 3}
+  \ensuremath{\cata{\alt{\conj{\conj{\Varid{one}}{\Varid{mul}\comp \p1}}{\conj{\succ }{\succ \comp \p2\comp \p1}}}{\conj{\conj{\Varid{one}}{\Varid{mul}\comp \p2}}{\conj{\Varid{one}}{\Varid{suc}\comp \p2\comp \p2}}}}}
+\qed
+\end{eqnarray*}
+
+\textbf{Então,} 
+
+\begin{eqnarray*}
+\start
+\just\equiv{ for b i = \ensuremath{\Varid{cata}\;\alt{\underline{\Varid{i}}}{\Varid{b}}} }
+  \ensuremath{\Varid{cata}\;\alt{\underline{\Varid{base}}}{\Varid{loop}}\mathrel{=}\cata{\alt{\conj{\conj{\Varid{one}}{\Varid{mul}\comp \p1}}{\conj{\succ }{\succ \comp \p2\comp \p1}}}{\conj{\conj{\Varid{one}}{\Varid{mul}\comp \p2}}{\conj{\Varid{one}}{\Varid{suc}\comp \p2\comp \p2}}}}}
+\just\equiv{ Eq-+ }
+    \ensuremath{\underline{\Varid{base}}\mathrel{=}\conj{\conj{\Varid{one}}{\succ }}{\conj{\Varid{one}}{\Varid{one}}}}
+\more
+    \ensuremath{\Varid{loop}\mathrel{=}\conj{\conj{\Varid{mul}\comp \p1}{\succ \comp \p2\comp \p1}}{\conj{\Varid{mul}\comp \p2}{\succ \comp \p2\comp \p2}}}
+\end{eqnarray*}
 
 \subsubsection{Base}
 
@@ -1637,6 +1762,8 @@ Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{ou
 \ColumnHook
 \end{hscode}\resethooks
 
+Após o \emph{split id (const 1)} aplicamos a função \emph{singl} que coloca o par resultante numa lista. Após isso, aplicamos o construtor \emph{B}.
+
 \subsubsection{muB}
 
 \begin{eqnarray*}
@@ -1673,18 +1800,39 @@ Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{ou
 \ColumnHook
 \end{hscode}\resethooks
 
+Com \emph{map(subsilia)} conseguimos multiplicar todos os valores presentes no segundo elemento de todos os pares presentes na lista, que é o primeiro elemento no par inicial, pelo segundo elemento do par. Aplicando o map a toda a lista obtemos uma lista de listas que concatenamos com a função \emph{concat} e aplicamos \emph{B} para obter o tipo de retorno.
+
+
 \subsubsection{dist}
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+      \ensuremath{\mathit B\;[\mskip1.5mu (\Varid{a},\Conid{Int})\mskip1.5mu]}
+           \ar[r]_-{\ensuremath{\Varid{unB}}} 
+           \ar[d]_-{\ensuremath{\Varid{dist}}}    
+&
+      \ensuremath{[\mskip1.5mu (\Varid{a},\Conid{Int})\mskip1.5mu]}
+           \ar[d]^-{\ensuremath{\Varid{aux}\comp \conj{\Varid{id}}{\Varid{sum}\comp \map \;(\p2)}}}
+\\
+      \ensuremath{\Conid{D}\;[\mskip1.5mu (\Varid{a},\Conid{Float})\mskip1.5mu]} 
+&
+      \ensuremath{[\mskip1.5mu (\Varid{a},\Conid{Float})\mskip1.5mu]}
+          \ar[l]_-{\ensuremath{\Conid{D}}}    
+}
+\end{eqnarray*}
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{7}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{dist}\mathrel{=}\Varid{aux}\comp \conj{\Varid{id}}{\Varid{sum}\comp \map \;(\p2)}\comp \Varid{unB}{}\<[E]%
+\>[B]{}\Varid{dist}\mathrel{=}\Conid{D}\comp \Varid{aux}\comp \conj{\Varid{id}}{\Varid{sum}\comp \map \;(\p2)}\comp \Varid{unB}{}\<[E]%
 \\
 \>[B]{}\hsindent{7}{}\<[7]%
 \>[7]{}\mathbf{where}\;\Varid{aux}\;(\Varid{a},\Varid{b})\mathrel{=}\map \;(\lambda (\Varid{c},\Varid{d})\to (\Varid{a},(\Varid{toFloat}\;\Varid{d}\mathbin{/}\Varid{toFloat}\;\Varid{b})))\;\Varid{a}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+Após aplicar \emph{unB} obtemos uma lista de pares \emph{(a, Int)} à qual aplicamos um split para criar um par, em que no primeiro elemento está presente o resultado de aplicarmos a função \emph{id} e no segundo, o valor de somar todos os segundos elementos dos pares presentes na lista. Após isso aplicamos a função \emph{aux} que recebe o par criado pelo split e calcula para todos os elementos presentes na lista, que é o primeiro elemento do par, a percentagem correspondente utilizando o valor calculado que está presente no segundo elemento do par.
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}
 Estudar o texto fonte deste trabalho para obter o efeito:\footnote{Exemplos tirados de \cite{Ol18}.} 

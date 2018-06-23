@@ -985,7 +985,7 @@ hyloBlockchain g h = cataBlockchain g . anaBlockchain h
 \end{code}
 
 \subsubsection{allTransactions}
-De seguida apresenta-se a definição da função \emph{allTransactions}, esta função devolve a lista de transações existentes na \emph{BlockChain}.
+De seguida apresenta-se o diagrama e a definição da função \emph{allTransactions}, esta função devolve a lista de transações existentes na \emph{BlockChain}.
 
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
@@ -1110,6 +1110,170 @@ outlineQTree = undefined
 Para obter as funções \emph{base} e \emph{loop} aplicamos a lei da recursividade múltipla e a lei do \emph{banana-split}.
 
 \subsubsection{Prova}
+\textbf{Conversão de l k:}
+
+\begin{eqnarray*}
+\start
+  |lcbr(
+    l k 0 = k + 1
+  )(
+    l k (d + 1) = l k d + 1
+  )|
+%
+\just\equiv{ Igualdade extensional; Cancelamento-x}
+  |lcbr(
+    l k . (const 0) = succ . k
+  )(
+    l k . succ = succ . p2 . (split (f k) (l k))
+  )|
+\just\equiv{Eq-+}
+%
+|either (l k . (const 0)) (l k . succ) = either (succ . k) (succ . p2 . (split (f k) (l k)))|
+\just\equiv{ Fusão-+; in = |either (const 0) (succ)| ; Absorção-+}
+%
+|l k . in = (either (succ . k) (succ . p2)) . (id + (split (f k) (l k)))|
+\just\equiv{ F f = (id + f)}
+%
+|l k . in = (either (succ . k) (succ . p2)) . F (split (f k) (l k))|
+\end{eqnarray*}
+
+\textbf{Conversão de f k:}
+
+\begin{eqnarray*}
+\start
+|lcbr(
+    f k 0 = 1
+  )(
+    f k (d + 1) = (d + k  + 1) * f k d
+  )|
+\just\equiv{ Igualdade extensional\{73\}; (d + k  + 1) = l k d}
+        |lcbr(
+    f k . (const 0) = (const 1)
+  )(
+    f k . succ = mul (split (f k) (l k))
+  )|
+\just\equiv{ Eq-+}
+
+|either (f k . (const 0)) (f k . succ) = either (const 1) (mul (split (l k) (f k)))|
+\just\equiv{ Fusão-+; in = |either (const 0) (succ)| ; Absorção-+}
+
+|f k . in = (either (const 1) (mul)) . (id + (split (l k) (f k)))|
+
+\just\equiv{ F f = (id + f) }
+
+|f k . in = (either (const 1) (mul)) . F (split (l k) (f k))| $<=>$ |f k . in = (either (const 1) (mul)) . (id + (split (l k) (f k)))|
+\end{eqnarray*}
+
+
+\textbf{Fokkinga:}
+
+\begin{eqnarray*}
+\start
+\just\equiv{Fokkinga; in = [0,succ]}
+|lcbr(
+  f k . in = either 1 (mul) . (id +(split (l k) (f k)))
+)(
+  l k . in = either succ succ . p2 . (id + (split (f k) (l k)) 
+)|
+\more
+|split (f k) (l k) =|\cata{|split (either one mul) (either succ succ . p2)|}
+\qed
+\end{eqnarray*}
+
+\textbf{Conversão g: }
+
+\begin{eqnarray*}
+\start
+ |lcbr(
+    g 0 = 1
+  )(
+    g (d + 1) = (d + 1) * g d
+  )|
+
+\just\equiv{ Igualdade extensional x 2, Def-comp}
+  |lcbr(
+    g . zero = one
+  )(
+    g . succ = mul . split s g
+  )|
+\just\equiv{ Eq-+}
+  |either (g . zero) (g . succ) = either one (mul . split s g)|
+\just\equiv{Fusão-+, Absorção-+}
+  |g . in = (either (const 1) (mul)) . (id + (split s g)|
+\just\equiv{ F f = (id + f)}
+%
+|g . in = (either (const 1) (mul)) . F (split s g)| $<=>$| (either (const 1) (mul)) . (id + (split s g))|
+\qed
+\end{eqnarray*}
+
+\textbf{Conversão s:}
+
+\begin{eqnarray*}
+\start
+  |lcbr(
+    s 0 = 1
+  )(
+    s (d + 1) = (s d) + 1
+  )|
+\just\equiv{ Igualdade extensional  x 2, Def-comp ; Cancelamento-x}
+|lcbr(
+  s . 0 = 1
+  )(
+  s . succ = succ . p2 . (split g s)
+  ) 
+|
+\just\equiv{Eq-+}
+  |either (s . (const 0)) (s . succ) = either (const 1) (succ . p2 . (split g s))|
+\just\equiv{Fusão-+ ; in = [0, succ] ; Absorção-+ ; F f = id+f}
+  |s . in = (either (1) (succ . p2)) . (id + split g s)|
+\qed
+\end{eqnarray*}
+
+\textbf{Fokkinga:}
+
+\begin{eqnarray*}
+\start
+\just\equiv{Fokkinga ;in = [0,succ]}
+|lcbr(
+  g . in = either 1 mul . (id + (split s g))
+)(
+  s . in = either 1 succ . (id + (split g s))
+)|
+|split g s = (cata(split(either 1 mul) (either 1 succ . p2)))|
+\qed
+\end{eqnarray*}
+
+\textbf{Banana-split:}
+
+\begin{eqnarray*}
+\start
+  |split (cataNat(split (either one mul) (either succ (succ . p2)))) (cataNat(split (either one mul) (either one (succ . p2))))|
+\just\equiv{Banana-Split}
+  |cataNat( (split (either one mul) (either succ (succ . p2))) >< (split (either one mul) (either one (succ . p2))) . split (F p1) (F p2))|
+\just\equiv{Absorção - x}
+  |cataNat(split ((split (either one mul) (either succ (succ . p2))) . (F p1)) ((split (either one mul) (either one (succ . p2))) . (F p2)))|
+\just\equiv{Fusão - x}
+  |cataNat(split (split ((either one mul) . (F p1)) ((either succ (succ . p2)) . (F p1))) (split ((either one mul) . (F p2)) ((either one (succ . p2)) . (F p2))))|
+\just\equiv{Def F f = id + f}
+  |cataNat(split (split ((either one mul) . (id + p1)) ((either succ (succ . p2)) . (id + p1))) (split ((either one mul) . (id + p2)) ((either one (succ . p2)) . (id + p2))))|
+\just\equiv{Absorção-+, Nat-id}
+  |cataNat(split (split (either one (mul . p1)) (either succ (succ . p2 . p1)))  (split (either one (mul . p2)) (either one ((succ .  p2 . p2)))))|
+\just\equiv{Lei da Troca x 3}
+  |cataNat(either (split (split one (mul . p1)) (split succ (succ . p2 . p1)))  (split (split one (mul . p2)) (split one (suc . p2 . p2))))|
+\qed
+\end{eqnarray*}
+
+\textbf{Então,} 
+
+\begin{eqnarray*}
+\start
+\just\equiv{ for b i = |cata (either (const i) (b))| }
+  |cata (either (const base) loop) = cataNat(either (split (split one (mul . p1)) (split succ (succ . p2 . p1)))  (split (split one (mul . p2)) (split one (suc . p2 . p2))))|
+\just\equiv{ Eq-+ }
+    |const base = split (split one succ) (split one one)|
+\more
+    |loop = split (split (mul.p1) (succ.p2.p1)) (split (mul.p2) (succ.p2.p2))|
+\end{eqnarray*}
 
 \subsubsection{Base}
 
@@ -1229,6 +1393,8 @@ singletonbag = B . singl . split id (const 1)
 
 \end{code}
 
+Após o \emph{split id (const 1)} aplicamos a função \emph{singl} que coloca o par resultante numa lista. Após isso, aplicamos o construtor \emph{B}.
+
 \subsubsection{muB}
 
 \begin{eqnarray*}
@@ -1261,14 +1427,35 @@ muB = B . concat . map(subsilia) . unB . fmap unB
 
 \end{code}
 
+Com \emph{map(subsilia)} conseguimos multiplicar todos os valores presentes no segundo elemento de todos os pares presentes na lista, que é o primeiro elemento no par inicial, pelo segundo elemento do par. Aplicando o map a toda a lista obtemos uma lista de listas que concatenamos com a função \emph{concat} e aplicamos \emph{B} para obter o tipo de retorno.
+
+
 \subsubsection{dist}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |B [(a,Int)]|
+           \ar[r]_-{|unB|} 
+           \ar[d]_-{|dist|}    
+&
+      |[(a,Int)]|
+           \ar[d]^-{|aux . split (id) (sum . map(p2))|}
+\\
+      |D [(a,Float)]| 
+&
+      |[(a,Float)]|
+          \ar[l]_-{|D|}    
+}
+\end{eqnarray*}
 
 \begin{code}
 
-dist = aux . split (id) (sum . map(snd)) . unB
+dist = D . aux . split (id) (sum . map(p2)) . unB
       where aux (a, b) = map(\(c,d) -> (a, (toFloat d / toFloat b))) a
 
 \end{code}
+
+Após aplicar \emph{unB} obtemos uma lista de pares \emph{(a, Int)} à qual aplicamos um split para criar um par, em que no primeiro elemento está presente o resultado de aplicarmos a função \emph{id} e no segundo, o valor de somar todos os segundos elementos dos pares presentes na lista. Após isso aplicamos a função \emph{aux} que recebe o par criado pelo split e calcula para todos os elementos presentes na lista, que é o primeiro elemento do par, a percentagem correspondente utilizando o valor calculado que está presente no segundo elemento do par.
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}
 Estudar o texto fonte deste trabalho para obter o efeito:\footnote{Exemplos tirados de \cite{Ol18}.} 
