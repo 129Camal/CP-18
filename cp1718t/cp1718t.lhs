@@ -1097,7 +1097,8 @@ rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (s
 
 scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
 
-invertQTree = undefined 
+invertQTree = fmap(invertPixel) 
+invertPixel (PixelRGBA8 a b c d) = PixelRGBA8 (255-a) (255-b) (255-c) d
 
 compressQTree = undefined
 
