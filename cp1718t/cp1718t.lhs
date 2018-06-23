@@ -1092,14 +1092,64 @@ hyloQTree f h = cataQTree f . anaQTree h
 
 instance Functor QTree where
     fmap g = cataQTree (inQTree .  baseQTree g id)
+\end{code}
 
+\subsubsection{rotateQTree}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |QTree|
+           \ar[d]_-{|rotateQTree|}
+           \ar[r]_-{|outQTree|}      
+&
+      |B + T4|
+           \ar[d]^-{|id + rotateQTree4|}
+\\
+      |QTree|   
+&
+      |B + T4|
+            \ar[l]_-{|g|}
+}
+\end{eqnarray*}
+
+\begin{code}
 rotateQTree = cataQTree(inQTree . ((id><swap) -|- (split (p1.p2.p2) (split p1 (split (p2.p2.p2) (p1.p2))))))
+\end{code}
 
-scaleQTree n = anaQTree(((id >< ((n*) >< (n*))) -|- id) . outQTree)
+O processo de rotação de uma quadtree, é composto por duas ações: 
+    -Efetuar a rotação ordenada dos quadrantes da imagem. Que equivale, a efetuar a troca ordenada de cada sub-árvore. 
+    -Transpor o tamanho de cada quadrante. É efetuada a troca do segudo argumento pelo ultimo do elemento \emph{Cell}.
+    Começamos por aplicar a função \emph{outQTree} e obtemos um either, com as quatro subtrees ou com uma celula. Aplicando a troca dos inteiros da \emph{Cell} ou a ordem das subtrees, obtemos um either que com a aplicação da função \emph{inQTree} obtemos a nova arvore.    
 
+
+\subsubsection{scaleQTree}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |QTree|
+           \ar[d]_-{|scaleQTree|}
+           \ar[r]_-{|outQTree|}      
+&
+      |B + T4|
+           \ar[d]^-{|id + scaleQTree4|}
+\\
+      |QTree|   
+&
+      |B + T4|
+            \ar[l]_-{|g|}
+}
+\end{eqnarray*}
+
+\begin{code}
+scaleQTree n = cataQTree(inQTree . ((id >< ((n*) >< (n*))) -|- id))
+\end{code}
+
+\begin{code}
 invertQTree = fmap(invertPixel) 
 invertPixel (PixelRGBA8 a b c d) = PixelRGBA8 (255-a) (255-b) (255-c) d
+\end{code}
 
+\begin{code}
 compressQTree = undefined
 
 outlineQTree = undefined
