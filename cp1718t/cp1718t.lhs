@@ -987,16 +987,6 @@ hyloBlockchain g h = cataBlockchain g . anaBlockchain h
 \subsubsection{allTransactions}
 De seguida apresenta-se a definição da função \emph{allTransactions}, esta função devolve a lista de transações existentes na \emph{BlockChain}.
 
-\begin{code}
-
-allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id))) 
-
-\end{code}
-
-
-Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso receba um \emph{bc} apenas irá retirar a lista das transações presentes, caso seja uma \emph{BlockChain} do tipo \emph{bcs} apenas retiramos a lista de transações presente no \emph{Block}.
-
-
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
     |BlockChain|
@@ -1013,20 +1003,18 @@ Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso rece
 }
 \end{eqnarray*}
 
-\subsubsection{ledger}
-
-Com a função \emph{ledger} pretende-se obter uma lista de pares, (\emph{Entity,Value}) que represente a \emph{Entity} e o seu respetivo \emph{Value}, ou seja, o somatório de todos os valores que a entidade gastou ou obteve. É de salientar que esta função recebe uma \emph{BlockChain}.
-
 \begin{code}
-ledger= m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id))) . allTransactions
-        where sp = (singl><singl)
-              l = (id >< negate.p1)
-              r = swap.p2
-              m = map(id >< sum)
+
+allTransactions = cataBlockchain(either (p2.p2) (conc . (p2.p2 >< id))) 
 
 \end{code}
 
-Para resolver esta função, utilizamos em primeira instância a função anteriormente desenvolvida, \emph{allTransactions}. Com a lista de transações obtida, aplicamos um \emph{CataList} que a cada \emph{Transaction} que é representada pelo par \textit{(Entity, (Value,Entity))}, vai aplicar o split de maneira a criar um par de pares com a seguinte representação \textit{((Entity, \-Value), (Entity, Value))} e posteriormente inserir numa lista cada par criado utilizando a função \emph{singl} aplicada a cada elemento do par de pares. Posteriormente aplicamos a função \emph{conc} para concatenar os elementos que pertencem ao par de pares. Após o cata, temos que eliminar os repetidos e somar os seus \emph{Values}. Para isso utilizamos a função \emph{col} que recebe a lista resultante do cataList e devolve uma lista de pares, em que no primeiro elemento tem o valor da \emph{Entity} e no segundo uma lista de \emph{Values} que estão associados a essa \emph{Entity}. Posteriormente aplicamos a função \emph{map} que aplica a toda a lista resultante de aplicar \emph{col}, a função \emph{id} ao primeiro elemento e a função \emph{sum} ao segundo elemento, retornando a lista de acordo com o pedido no enunciado.  
+
+Para conseguirmos atingir o objetivo, aplicamos um catamorfismo em que caso receba um \emph{bc} apenas irá retirar a lista das transações presentes, caso seja uma \emph{BlockChain} do tipo \emph{bcs} apenas retiramos a lista de transações presente no \emph{Block}.
+
+\subsubsection{ledger}
+
+Com a função \emph{ledger} pretende-se obter uma lista de pares, (\emph{Entity,Value}) que represente a \emph{Entity} e o seu respetivo \emph{Value}, ou seja, o somatório de todos os valores que a entidade gastou ou obteve. É de salientar que esta função recebe uma \emph{BlockChain}.
 
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
@@ -1048,19 +1036,21 @@ Para resolver esta função, utilizamos em primeira instância a função anteri
 }
 \end{eqnarray*}
 
+\begin{code}
+ledger= m . col . cataList(either nil (conc . (conc . sp . (split l r)  >< id))) . allTransactions
+        where sp = (singl><singl)
+              l = (id >< negate.p1)
+              r = swap.p2
+              m = map(id >< sum)
+
+\end{code}
+
+Para resolver esta função, utilizamos em primeira instância a função anteriormente desenvolvida, \emph{allTransactions}. Com a lista de transações obtida, aplicamos um \emph{CataList} que a cada \emph{Transaction} que é representada pelo par \textit{(Entity, (Value,Entity))}, vai aplicar o split de maneira a criar um par de pares com a seguinte representação \textit{((Entity, \-Value), (Entity, Value))} e posteriormente inserir numa lista cada par criado utilizando a função \emph{singl} aplicada a cada elemento do par de pares. Posteriormente aplicamos a função \emph{conc} para concatenar os elementos que pertencem ao par de pares. Após o cata, temos que eliminar os repetidos e somar os seus \emph{Values}. Para isso utilizamos a função \emph{col} que recebe a lista resultante do cataList e devolve uma lista de pares, em que no primeiro elemento tem o valor da \emph{Entity} e no segundo uma lista de \emph{Values} que estão associados a essa \emph{Entity}. Posteriormente aplicamos a função \emph{map} que aplica a toda a lista resultante de aplicar \emph{col}, a função \emph{id} ao primeiro elemento e a função \emph{sum} ao segundo elemento, retornando a lista de acordo com o pedido no enunciado.  
+
 
 \subsubsection{isValidMagicNr}
 
 Com a função \emph{isValidMagicNr} pretende-se que a partir de uma \emph{BlockChain} se consiga obter o valor lógico sobre a existência de números mágicos repetidos na \emph{BlockChain}.
-
-\begin{code}
-
-isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
-        where eq = uncurry (==)
-
-\end{code}
-
-Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar em todos os tipos de \emph{Block}, o seu \emph{MagicNo} e posteriormente colocar numa lista com as funções \emph{singl} ou \emph{cons}. Depois para apurar se a lista de \emph{MagicNo} contém repetidos, aplicamos um \emph{split} de maneira a ter no primeiro elemento do par a lista sem mudanças e na segundo elemento a lista resultante de aplicar a função \emph{nub} que devolve a lista de \emph{MagicNo} sem repetidos, caso os contenha. Posteriormente comparamos as duas e devolvemos o resultado. 
 
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
@@ -1077,6 +1067,15 @@ Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar e
             \ar[l]_-{|uncurry (==)|}
 }
 \end{eqnarray*}
+
+\begin{code}
+
+isValidMagicNr = eq . split id nub . cataBlockchain(either (singl.p1) (cons.(p1 >< id)))
+        where eq = uncurry (==)
+
+\end{code}
+
+Para obter a solução desejada aplicamos o \emph{cataBlockChain} para retirar em todos os tipos de \emph{Block}, o seu \emph{MagicNo} e posteriormente colocar numa lista com as funções \emph{singl} ou \emph{cons}. Depois para apurar se a lista de \emph{MagicNo} contém repetidos, aplicamos um \emph{split} de maneira a ter no primeiro elemento do par a lista sem mudanças e na segundo elemento a lista resultante de aplicar a função \emph{nub} que devolve a lista de \emph{MagicNo} sem repetidos, caso os contenha. Posteriormente comparamos as duas e devolvemos o resultado lógico da comparação. 
 
 \subsection*{Problema 2}
 
@@ -1113,13 +1112,6 @@ Para obter as funções \emph{base} e \emph{loop} aplicamos a lei da recursivida
 
 \subsubsection{Base}
 
-\begin{code}
-base = f . split (split one succ) (split one one)
-      where f ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
-\end{code}
-
-Após aplicar a função, tivemos ainda que transformar o par de pares num tuplo que é o tipo de saída da função \emph{base}, para isso criamos a função \emph{f}. 
-
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
       |Integer|
@@ -1133,15 +1125,14 @@ Após aplicar a função, tivemos ainda que transformar o par de pares num tuplo
 }
 \end{eqnarray*}
 
-\subsubsection{Loop}
-
 \begin{code}
-loop = g . split (split (mul . p1) (succ . p2 . p1)) (split (mul . p2) (succ . p2 . p2)) . f
-      where f (x1, y1, x2, y2) = ((x1,y1), (x2, y2))
-            g ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
+base = f . split (split one succ) (split one one)
+      where f ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
 \end{code}
 
-Tal como acontece na função \emph{base}, na função \emph{loop} temos que alterar os tipos de saída e de entrada, para isso criou-se as funções \emph{f} e \emph{g} respetivamente.
+Após aplicar a função, tivemos ainda que transformar o par de pares num tuplo que é o tipo de saída da função \emph{base}, para isso criamos a função \emph{f}. 
+
+\subsubsection{Loop}
 
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
@@ -1158,6 +1149,15 @@ Tal como acontece na função \emph{base}, na função \emph{loop} temos que alt
             \ar[l]^-{|g|}      
 }
 \end{eqnarray*}
+
+\begin{code}
+loop = g . split (split (mul . p1) (succ . p2 . p1)) (split (mul . p2) (succ . p2 . p2)) . f
+      where f (x1, y1, x2, y2) = ((x1,y1), (x2, y2))
+            g ((x1,y1), (x2,y2)) = (x1, y1, x2, y2) 
+\end{code}
+
+Tal como acontece na função \emph{base}, na função \emph{loop} temos que alterar os tipos de saída e de entrada, para isso criou-se as funções \emph{f} e \emph{g} respetivamente.
+
 
 \subsection*{Problema 4}
 
@@ -1179,12 +1179,6 @@ instance Bifunctor FTree where
 
 Esta função tem como objetivo gerar uma árvore de Pitágoras para uma dada ordem, utilizando um anamorfismo.
 
-\begin{code}
-generatePTree = anaFTree(((const 1.0) -|- split (((sqrt(2)/2)^) . succ) (split id id)) . outNat)
-\end{code}
-
-Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{outNat} ao tipo inicial que a função \emph{generatePTree} recebe, conseguimos construir a respetiva PTree. 
-
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
       |Int|
@@ -1195,19 +1189,84 @@ Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{ou
 \end{eqnarray*}
 
 \begin{code}
+generatePTree = anaFTree(((const 1.0) -|- split (((sqrt(2)/2)^) . succ) (split id id)) . outNat)
+\end{code}
+
+Construindo um anamorfismo que aplica um either ao resultado de aplicar \emph{outNat} ao tipo inicial que a função \emph{generatePTree} recebe, conseguimos construir a respetiva PTree. 
+
+
+
+\subsubsection{DrawPTree}
+
+\begin{code}
 drawPTree = undefined
 \end{code}
 
 \subsection*{Problema 5}
 
+\subsubsection{Singletonbag}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |a|
+           \ar[r]_-{|split id (const 1)|} 
+           \ar[d]_-{|singletonbag|}    
+&
+      |(a, (const 1))|
+           \ar[d]^-{|singl|}
+\\
+      |B (a,Int)*| 
+&
+      |(a,Int)*|
+            \ar[l]^-{|B|}      
+}
+\end{eqnarray*}
+
 \begin{code}
+
 singletonbag = B . singl . split id (const 1)
+
+\end{code}
+
+\subsubsection{muB}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+      |B [(B [(a,Int)] , Int)]|
+           \ar[r]_-{|fmap unB|} 
+           \ar[d]_-{|muB|}    
+&
+      |B [([(a,Int)],Int)]|
+           \ar[r]^-{|unB|}
+&
+      |[([(a,Int)], Int)]|
+          \ar[d]_-{|map(subsilia)|}
+\\
+      |B [(a,Int)]| 
+&
+      |[(a,Int)]|
+            \ar[l]^-{|B|}
+&
+      |[[(a, Int)]]|
+            \ar[l]^-{|concat|}      
+}
+\end{eqnarray*}
+
+
+\begin{code}
 
 muB = B . concat . map(subsilia) . unB . fmap unB
       where subsilia (a,b) = map(id >< (*b)) a 
 
+\end{code}
+
+\subsubsection{dist}
+
+\begin{code}
+
 dist = aux . split (id) (sum . map(snd)) . unB
       where aux (a, b) = map(\(c,d) -> (a, (toFloat d / toFloat b))) a
+
 \end{code}
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}
