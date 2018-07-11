@@ -1501,7 +1501,7 @@ Com \emph{map(subsilia)} conseguimos multiplicar todos os valores presentes no s
 \begin{code}
 
 dist = D . aux . split (id) (sum . map(p2)) . unB
-      where aux (a, b) = map(\(c,d) -> (a, (toFloat d / toFloat b))) a
+      where aux (a, b) = map(\(c,d) -> (c, (toFloat d / toFloat b))) a
 
 \end{code}
 
